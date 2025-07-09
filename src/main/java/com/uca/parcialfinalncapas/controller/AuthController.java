@@ -1,10 +1,13 @@
 package com.uca.parcialfinalncapas.controller;
 
+import com.uca.parcialfinalncapas.dto.request.LoginRequest;
+import com.uca.parcialfinalncapas.dto.response.AuthResponse;
 import com.uca.parcialfinalncapas.entities.User;
 import com.uca.parcialfinalncapas.repository.UserRepository;
-import com.uca.parcialfinalncapas.config.security.JwtUtil;
+import com.uca.parcialfinalncapas.security.jwt.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,27 +17,21 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserRepository userRepo;
+    private final UserRepository repo;
     private final PasswordEncoder encoder;
-    private final JwtUtil jwt;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest req) {
-        User user = userRepo.findByCorreo(req.email())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        User user = repo.findByCorreo(request.getCorreo())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Credenciales inválidas"));
 
-        if (!encoder.matches(req.password(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (!encoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales inválidas");
         }
 
-        String role = user.getNombreRol();
-        String token = jwt.generateToken(user.getId(), role);
-
-        return new AuthResponse(token, user.getId(), role);
+        String jwt = jwtUtil.generateToken(user.getCorreo(), user.getNombreRol());
+        return ResponseEntity.ok(new AuthResponse(jwt));
     }
-
-    /* -------- records DTO -------- */
-    public static record AuthRequest(String email, String password) {}
-
-    public static record AuthResponse(String token, Long userId, String role) {}
 }
