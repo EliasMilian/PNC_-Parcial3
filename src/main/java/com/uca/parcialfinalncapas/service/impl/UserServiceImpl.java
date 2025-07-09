@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Ya existe un usuario con el correo: " + user.getCorreo());
         }
 
+
         return UserMapper.toDTO(userRepository.save(UserMapper.toEntityCreate(user)));
     }
 
