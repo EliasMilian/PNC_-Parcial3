@@ -1,10 +1,7 @@
--- Script de inicialización para base de datos
+
 -- Usuarios de prueba para testing del sistema
 
--- Esperar a que las tablas se creen automáticamente por Hibernate
--- Este script se ejecuta después de que Spring Boot cree las tablas
 
--- Usuarios de prueba según especificaciones del examen
 INSERT INTO usuarios (nombre, correo, password, nombre_rol) VALUES
   ('Usuario Prueba', 'user', 'user123', 'USER'),
   ('Tecnico Prueba', 'tech', 'tech123', 'TECH'),
