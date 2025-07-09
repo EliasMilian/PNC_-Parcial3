@@ -14,7 +14,6 @@ public class UserMapper {
                 .nombre(userRequest.getNombre())
                 .correo(userRequest.getCorreo())
                 .password(userRequest.getPassword())
-                .nombreRol(userRequest.getNombreRol())
                 .build();
     }
 
